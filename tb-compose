@@ -1,7 +1,14 @@
 #!/bin/bash
 
+# A utility to easily start Thunderbird's compose a mail option from
+# the command line. Especially handy (and the reason for this script)
+# is creating attachments from stdin. See 'tb-compose --help'
+# --Chaitanya Gupta
+
 usage() {
-    local summary="Usage: $(basename $0) [<options>]"
+    echo "Compose a mail in Thunderbird."
+    echo "Usage: $(basename $0) [<options>]"
+    echo
     cat <<EOF
 Options:
  --help         This message
