@@ -1,0 +1,93 @@
+#!/bin/bash
+
+usage() {
+    local summary="Usage: $(basename $0) [<options>]"
+    cat <<EOF
+Options:
+ --help         This message
+ --to           Email of the recipient
+ --cc           Recipient to be Cc'ed mail to
+ --subject      Subject of the mail
+ --body         Body of the mail
+ --attach       Path to file to be attached, or '-' for stdin
+ --attach-name  Attachment name, if attachment is stdin
+EOF
+}
+
+read_options() {
+    local params=$(getopt -o "" --long help,to:,cc:,subject:,body:,attach:,attach-name: -- "$@")
+    # echo $params
+    if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+    eval set -- "$params"
+    while true
+    do
+        case "$1" in
+            --help) HELP=true; shift ;;
+            --to) TO="$2"; shift 2 ;;
+            --cc) CC="$2"; shift 2 ;;
+            --subject) SUBJECT="$2"; shift 2 ;;
+            --body) BODY="$2"; shift 2 ;;
+            --attach) ATTACHMENT="$2"; shift 2 ;;
+            --attach-name) ATTACHMENT_NAME="$2"; shift 2 ;;
+            --) shift; break ;;
+            *) echo "Invalid arguments!" >&2; exit 1 ;;
+        esac
+    done
+}
+
+read_options "$@"
+
+# echo ---
+# echo HELP="$HELP"
+# echo TO="$TO"
+# echo CC="$CC"
+# echo SUBJECT="$SUBJECT"
+# echo BODY="$BODY"
+# echo ATTACHMENT="$ATTACHMENT"
+# echo ATTACHMENT_NAME="$ATTACHMENT_NAME"
+# echo ---
+
+[[ -n "$HELP" ]] && usage && exit 0
+
+if [[ "$ATTACHMENT" = "-" ]];
+then
+    if [[ -n "$ATTACHMENT_NAME" ]];
+    then
+        mkdir -p /tmp/tb-compose/
+        ATTACHMENT="/tmp/tb-compose/${ATTACHMENT_NAME}"
+    else
+        ATTACHMENT=$(tempfile)
+    fi
+    cat ->"$ATTACHMENT"
+fi
+
+if [[ -n "$ATTACHMENT" && "${ATTACHMENT:0:1}" != "/" ]];
+then
+    ATTACHMENT="file://$(pwd)/${ATTACHMENT}"
+else
+    ATTACHMENT="file://${ATTACHMENT}"
+fi
+
+COMPOSE_ARGS=""
+
+build_tb_compose_args() {
+    local tb_var="$1"
+    local var="$2"
+    local value=$(eval echo '$'$var)
+    if [[ -n "$value" ]]; then
+        COMPOSE_ARGS="${COMPOSE_ARGS}${tb_var}='${value}',"
+    fi
+}
+
+build_tb_compose_args to TO
+build_tb_compose_args cc CC
+build_tb_compose_args subject SUBJECT
+build_tb_compose_args body BODY
+build_tb_compose_args attachment ATTACHMENT
+
+# echo More debugging:
+# echo $ATTACHMENT
+# echo "$COMPOSE_ARGS"
+# echo Launching window...
+
+thunderbird -compose "$COMPOSE_ARGS"
