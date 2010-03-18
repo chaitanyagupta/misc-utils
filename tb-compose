@@ -11,13 +11,13 @@ usage() {
     echo
     cat <<EOF
 Options:
- --help         This message
- --to           Email of the recipient
- --cc           Recipient to be Cc'ed mail to
- --subject      Subject of the mail
- --body         Body of the mail
- --attach       Path to file to be attached, or '-' for stdin
- --attach-name  Attachment name, if attachment is stdin
+ --help             This message
+ --to               Email of the recipient
+ --cc               Recipient to be Cc'ed mail to
+ --subject          Subject of the mail
+ --body             Body of the mail
+ --attachment       Path to file to be attached, or '-' for stdin
+ --attachment-name  Attachment name, if attachment is stdin
 EOF
 }
 
