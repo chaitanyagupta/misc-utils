@@ -16,6 +16,7 @@ Options:
  --cc               Recipient to be Cc'ed mail to
  --subject          Subject of the mail
  --body             Body of the mail
+ --attach
  --attachment       Path to file to be attached, or '-' for stdin
  --attachment-name  Attachment name, if attachment is stdin
 EOF
@@ -34,7 +35,7 @@ read_options() {
             --cc) CC="$2"; shift 2 ;;
             --subject) SUBJECT="$2"; shift 2 ;;
             --body) BODY="$2"; shift 2 ;;
-            --attachment) ATTACHMENT="$2"; shift 2 ;;
+            --attach|--attachment) ATTACHMENT="$2"; shift 2 ;;
             --attachment-name) ATTACHMENT_NAME="$2"; shift 2 ;;
             --) shift; break ;;
             *) echo "Invalid arguments!" >&2; exit 1 ;;
