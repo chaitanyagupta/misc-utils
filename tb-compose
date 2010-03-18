@@ -57,6 +57,14 @@ read_options "$@"
 
 [[ -n "$HELP" ]] && usage && exit 0
 
+# if attachment-name is given but no attachment source, assume its
+# from stdin
+if [[ -z "$ATTACHMENT" && -n "$ATTACHMENT_NAME" ]];
+then
+    ATTACHMENT="-"
+fi
+
+# attachment should come from stdin
 if [[ "$ATTACHMENT" = "-" ]];
 then
     if [[ -n "$ATTACHMENT_NAME" ]];
@@ -69,13 +77,19 @@ then
     cat ->"$ATTACHMENT"
 fi
 
-if [[ -n "$ATTACHMENT" && "${ATTACHMENT:0:1}" != "/" ]];
+# TB's attachment arg needs absolute filepaths, prepend current path
+# to given path unless its absolute
+if [[ -n "$ATTACHMENT" ]];
 then
-    ATTACHMENT="file://$(pwd)/${ATTACHMENT}"
-else
-    ATTACHMENT="file://${ATTACHMENT}"
+    if [[ "${ATTACHMENT:0:1}" != "/" ]];
+    then
+        ATTACHMENT="file://$(pwd)/${ATTACHMENT}"
+    else
+        ATTACHMENT="file://${ATTACHMENT}"
+    fi
 fi
 
+# Now build args for thunderbird
 COMPOSE_ARGS=""
 
 build_tb_compose_args() {
